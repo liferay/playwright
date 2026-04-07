@@ -31,8 +31,10 @@ export class ZipTraceModelBackend implements TraceModelBackend {
   constructor(traceURL: string, server: TraceViewerServer, progress: Progress) {
     this._traceURL = traceURL;
     zipjs.configure({ baseURL: self.location.href } as any);
+    const headerMap = new Map<string,string>();
+    headerMap.set("Access-Control-Allow-Credentials","true");
     this._zipReader = new zipjs.ZipReader(
-        new zipjs.HttpReader(formatUrl(traceURL, server), { mode: 'cors', preventHeadRequest: true } as any),
+        new zipjs.HttpReader(formatUrl(traceURL, server), { headers: headerMap, preventHeadRequest: true } as any),
         { useWebWorkers: false });
     this._entriesPromise = this._zipReader.getEntries({ onprogress: progress }).then(entries => {
       const map = new Map<string, zip.Entry>();
